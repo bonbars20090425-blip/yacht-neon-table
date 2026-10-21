@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>YACHT // NEON TABLE</title>
+<meta name="theme-color" content="#0B0B0F">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B0B0F;--panel:#111118;--panel2:#16161F;--line:rgba(255,255,255,.09);
+  --text:#F8FAFC;--muted:#858593;--cyan:#00F5FF;--purple:#8B5CF6;
+  --green:#42f5a7;--danger:#ff5d73;--shadow:0 24px 80px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,"Noto Sans JP",sans-serif}
+body{overflow-x:hidden}
+body:before,body:after{content:"";position:fixed;width:42vw;height:42vw;border-radius:50%;filter:blur(110px);opacity:.11;pointer-events:none;z-index:-2}
+body:before{background:var(--purple);top:-20vw;right:-12vw}body:after{background:var(--cyan);bottom:-24vw;left:-15vw}
+button,input{font:inherit}button{cursor:pointer}
+.app{max-width:1500px;margin:auto;padding:20px 24px 28px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:18px}
+.brand{font-family:"Space Grotesk",sans-serif;font-weight:700;letter-spacing:.12em;font-size:18px}
+.brand span{color:var(--cyan)}.eyebrow{font-size:10px;color:var(--muted);letter-spacing:.22em;margin-top:4px}
+.hud{display:flex;gap:9px;align-items:center}.hudBox{padding:9px 13px;border:1px solid var(--line);background:rgba(255,255,255,.035);border-radius:12px;backdrop-filter:blur(16px)}
+.hudBox small{display:block;color:var(--muted);font-size:9px;letter-spacing:.12em}.hudBox b{font-family:"Space Grotesk";font-size:15px}
+.layout{display:grid;grid-template-columns:220px minmax(0,1fr) 315px;gap:16px}
+.panel{background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);backdrop-filter:blur(22px)}
+.side{padding:17px}.sectionTitle{font-size:10px;letter-spacing:.2em;color:var(--muted);font-weight:700;margin-bottom:12px}
+.players{display:grid;gap:8px}.player{border:1px solid transparent;padding:12px;border-radius:13px;background:rgba(255,255,255,.025)}
+.player.active{border-color:rgba(0,245,255,.45);box-shadow:0 0 30px rgba(0,245,255,.07);background:rgba(0,245,255,.035)}
+.playerRow{display:flex;align-items:center;gap:9px}.dot{width:7px;height:7px;border-radius:50%;background:#444}.active .dot{background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+.playerName{font-weight:700;font-size:13px}.score{margin-top:7px;font-family:"Space Grotesk";font-size:23px}.turn{font-size:9px;color:var(--cyan);letter-spacing:.15em;margin-top:3px}
+.add{width:100%;margin-top:10px;background:transparent;color:var(--muted);border:1px dashed #333;padding:9px;border-radius:10px}
+.center{min-width:0;display:flex;flex-direction:column;gap:14px}.table{position:relative;min-height:610px;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:22px}
+.table:before{content:"";position:absolute;inset:12% 8%;border:1px solid rgba(0,245,255,.07);border-radius:50%;box-shadow:inset 0 0 100px rgba(139,92,246,.04);pointer-events:none}
+.tableTop{position:relative;display:flex;justify-content:space-between;align-items:flex-start}.turnLabel{font-size:11px;color:var(--muted);letter-spacing:.16em}.turnLabel strong{display:block;color:#fff;font-size:18px;letter-spacing:0;margin-top:5px}
+.rollCount{text-align:right}.rollCount b{font-family:"Space Grotesk";font-size:25px;color:var(--cyan)}.rollCount span{display:block;font-size:9px;color:var(--muted);letter-spacing:.16em}
+.diceArea{position:relative;flex:1;display:flex;justify-content:center;align-items:center;min-height:390px}
+#diceCanvas{width:100%;height:400px;display:block}
+.diceHelp{position:absolute;bottom:8px;left:0;right:0;text-align:center;color:var(--muted);font-size:11px;pointer-events:none}
+.controls{position:relative;display:flex;justify-content:center;align-items:center;gap:10px}
+.rollBtn{min-width:190px;padding:15px 25px;border:1px solid rgba(0,245,255,.65);border-radius:14px;color:#001012;background:var(--cyan);font-family:"Space Grotesk";font-size:16px;font-weight:800;letter-spacing:.08em;box-shadow:0 0 30px rgba(0,245,255,.2),inset 0 1px rgba(255,255,255,.7)}
+.rollBtn:hover{box-shadow:0 0 50px rgba(0,245,255,.35)}.rollBtn:disabled{opacity:.35;cursor:not-allowed}
+.secondary{padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.05);color:#ddd;border:1px solid var(--line)}
+.right{padding:17px;display:flex;flex-direction:column;min-height:610px}.scoreList{display:grid;gap:6px;overflow:auto;max-height:535px;padding-right:2px}
+.category{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;border:1px solid transparent;background:rgba(255,255,255,.025);border-radius:12px;transition:.18s}
+.category.available{cursor:pointer}.category.available:hover{border-color:rgba(0,245,255,.35);background:rgba(0,245,255,.035);transform:translateX(-2px)}
+.category.used{opacity:.36}.categoryName{font-weight:600;font-size:12px}.categorySub{display:block;color:var(--muted);font-size:9px;margin-top:3px}.pts{font-family:"Space Grotesk";font-weight:700;font-size:17px}
+.available .pts{color:var(--cyan)}.preview{border:1px solid rgba(139,92,246,.35);background:rgba(139,92,246,.08)}
+.previewLabel{font-size:9px;letter-spacing:.18em;color:#bba6ff}.previewValue{font-family:"Space Grotesk";font-size:29px;margin-top:2px}
+.totalBox{margin-top:auto;border-top:1px solid var(--line);padding-top:14px;display:flex;justify-content:space-between;align-items:end}.totalBox small{color:var(--muted);letter-spacing:.16em}.totalBox b{font-family:"Space Grotesk";font-size:30px}
+.footerActions{display:flex;gap:8px;margin-top:10px}.footerActions button{flex:1}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(12px);display:none;place-items:center;padding:20px;z-index:20}.modal.show{display:grid}
+.modalCard{width:min(500px,100%);background:#111118;border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:var(--shadow)}
+.modalCard h2{margin:0 0 5px;font-family:"Space Grotesk"}.modalCard p{color:var(--muted);font-size:13px}
+.nameInputs{display:grid;gap:9px}.nameInputs input{background:#09090d;color:#fff;border:1px solid var(--line);border-radius:10px;padding:12px}
+.modalBtns{display:flex;gap:8px;margin-top:14px}.modalBtns button{flex:1;padding:12px;border-radius:10px;border:0}.primary{background:var(--cyan);color:#001012;font-weight:800}
+.toast{position:fixed;left:50%;bottom:25px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:rgba(10,10,15,.9);border:1px solid var(--line);padding:10px 15px;border-radius:12px;color:#fff;z-index:30;transition:.25s}.toast.show{opacity:1;transform:translate(-50%,0)}
+.win{position:fixed;inset:0;display:none;place-items:center;background:rgba(5,5,9,.78);backdrop-filter:blur(16px);z-index:25}.win.show{display:grid}.winCard{text-align:center;padding:38px;border:1px solid rgba(0,245,255,.3);border-radius:24px;background:rgba(17,17,24,.9);box-shadow:0 0 90px rgba(0,245,255,.12)}
+.winCard .big{font-family:"Space Grotesk";font-size:70px;line-height:1}.winCard h2{font-size:15px;letter-spacing:.3em;color:var(--cyan)}
+@media(max-width:1100px){.layout{grid-template-columns:180px minmax(0,1fr)}.right{grid-column:1/-1;min-height:auto}.scoreList{grid-template-columns:repeat(3,1fr);max-height:none}}
+@media(max-width:720px){.app{padding:13px}.topbar{align-items:flex-start}.hudBox:nth-child(2){display:none}.layout{display:flex;flex-direction:column}.side{order:2}.center{order:1}.right{order:3}.players{grid-template-columns:repeat(2,1fr)}.add{grid-column:1/-1}.table{min-height:550px;padding:15px}.diceArea{min-height:360px}#diceCanvas{height:360px}.scoreList{grid-template-columns:1fr 1fr}.rollBtn{min-width:165px}.brand{font-size:15px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div><div class="brand">YACHT <span>//</span> NEON TABLE</div><div class="eyebrow">ROLL · HOLD · RISK</div></div>
+    <div class="hud">
+      <div class="hudBox"><small>ROUND</small><b id="roundHud">01 / 12</b></div>
+      <div class="hudBox"><small>MODE</small><b>LOCAL</b></div>
+      <button class="secondary" id="settingsBtn">PLAYERS</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="panel side">
+      <div class="sectionTitle">PLAYERS</div>
+      <div class="players" id="players"></div>
+      <button class="add" id="addPlayer">＋ ADD PLAYER</button>
+    </aside>
+
+    <section class="center">
+      <div class="panel table">
+        <div class="tableTop">
+          <div class="turnLabel">CURRENT PLAYER<strong id="currentPlayer">YOU</strong></div>
+          <div class="rollCount"><b id="rollNum">00 / 03</b><span>ROLLS</span></div>
+        </div>
+        <div class="diceArea">
+          <canvas id="diceCanvas"></canvas>
+          <div class="diceHelp">CLICK A DIE TO HOLD / RELEASE</div>
+        </div>
+        <div class="controls">
+          <button class="secondary" id="resetTurn">RESET TURN</button>
+          <button class="rollBtn" id="rollBtn">ROLL <span id="rollText">01 / 03</span></button>
+        </div>
+      </div>
+      <div class="panel" style="padding:14px 17px;display:flex;justify-content:space-between;align-items:center">
+        <div><div class="sectionTitle" style="margin:0 0 4px">ROUND STATUS</div><div id="statusText" style="font-size:12px;color:#c7c7d0">ROLL THE DICE TO BEGIN</div></div>
+        <div style="font-family:'Space Grotesk';font-size:12px;color:var(--cyan)" id="phase">READY</div>
+      </div>
+    </section>
+
+    <aside class="panel right">
+      <div class="sectionTitle">SCOREBOARD</div>
+      <div class="preview" id="preview" style="padding:12px;border-radius:13px;margin-bottom:10px">
+        <div class="previewLabel">SELECTED PREVIEW</div>
+        <div class="previewValue" id="previewValue">—</div>
+      </div>
+      <div class="scoreList" id="scoreList"></div>
+      <div class="totalBox"><small>TOTAL</small><b id="totalScore">0</b></div>
+      <div class="footerActions"><button class="secondary" id="newGame">NEW GAME</button><button class="secondary" id="saveGame">SAVE</button></div>
+    </aside>
+  </main>
+</div>
+
+<div class="modal" id="settingsModal">
+  <div class="modalCard">
+    <h2>PLAYERS</h2><p>最大6人。名前を入力してゲームを開始できます。</p>
+    <div class="nameInputs" id="nameInputs"></div>
+    <div class="modalBtns"><button class="secondary" id="cancelSettings">CANCEL</button><button class="primary" id="applySettings">APPLY</button></div>
+  </div>
+</div>
+
+<div class="win" id="win">
+  <div class="winCard">
+    <h2>GAME OVER</h2>
+    <div class="big" id="winScore">0</div>
+    <p id="winText" style="color:#aaa">YOU WIN</p>
+    <button class="primary" id="playAgain" style="padding:12px 28px;border-radius:10px;border:0">PLAY AGAIN</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+const categories=[
+ ['ones','ONES','1の目'],['twos','TWOS','2の目'],['threes','THREES','3の目'],['fours','FOURS','4の目'],['fives','FIVES','5の目'],['sixes','SIXES','6の目'],
+ ['choice','CHOICE','チョイス'],['fourkind','FOUR OF A KIND','フォーダイス'],['fullhouse','FULL HOUSE','フルハウス'],['small','S. STRAIGHT','小ストレート'],['large','B. STRAIGHT','大ストレート'],['yacht','YACHT','ヨット']
+];
+const state={
+ players:[{name:'YOU',scores:{},total:0},{name:'PLAYER 2',scores:{},total:0}],
+ current:0,round:1,rolls:0,values:[1,1,1,1,1],held:[false,false,false,false,false],selected:null,gameOver:false
+};
+
+const $=id=>document.getElementById(id);
+function showToast(t){const e=$('toast');e.textContent=t;e.classList.add('show');clearTimeout(showToast.t);showToast.t=setTimeout(()=>e.classList.remove('show'),1600)}
+function save(){localStorage.setItem('yachtNeonTable',JSON.stringify(state));showToast('GAME SAVED')}
+function load(){try{const x=JSON.parse(localStorage.getItem('yachtNeonTable'));if(x){Object.assign(state,x);state.players.forEach(p=>{p.scores=p.scores||{};p.total=calcTotal(p.scores)})}}catch(e){}}
+function calcTotal(s){return Object.values(s||{}).reduce((a,b)=>a+(Number(b)||0),0)}
+function renderPlayers(){
+ $('players').innerHTML=state.players.map((p,i)=>`<div class="player ${i===state.current?'active':''}"><div class="playerRow"><i class="dot"></i><div class="playerName">${esc(p.name)}</div></div><div class="score">${p.total}</div>${i===state.current?'<div class="turn">YOUR TURN</div>':''}</div>`).join('');
+ $('currentPlayer').textContent=state.players[state.current].name;
+ $('totalScore').textContent=state.players[state.current].total;
+ $('roundHud').textContent=String(state.round).padStart(2,'0')+' / 12';
+}
+function renderScores(){
+ const p=state.players[state.current];
+ $('scoreList').innerHTML=categories.map(([key,en,jp])=>{
+   const used=p.scores[key]!==undefined, preview=scoreFor(key,state.values);
+   return `<div class="category ${used?'used':'available'}" data-key="${key}">
+     <div><div class="categoryName">${en}</div><span class="categorySub">${jp}</span></div>
+     <div class="pts">${used?'✓':preview}</div>
+   </div>`;
+ }).join('');
+ document.querySelectorAll('.category.available').forEach(e=>e.addEventListener('click',()=>chooseScore(e.dataset.key)));
+ $('previewValue').textContent=state.selected?scoreFor(state.selected,state.values):'—';
+}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function counts(a){const c=[0,0,0,0,0,0,0];a.forEach(v=>c[v]++);return c}
+function scoreFor(key,a){
+ const c=counts(a), sum=a.reduce((x,y)=>x+y,0);
+ if(key==='ones')return c[1]*1;if(key==='twos')return c[2]*2;if(key==='threes')return c[3]*3;if(key==='fours')return c[4]*4;if(key==='fives')return c[5]*5;if(key==='sixes')return c[6]*6;
+ if(key==='choice')return sum;
+ if(key==='fourkind')return c.some(n=>n>=4)?sum:0;
+ if(key==='fullhouse')return (c.includes(3)&&c.includes(2))?25:0;
+ const uniq=[...new Set(a)].sort((x,y)=>x-y).join('');
+ if(key==='small')return /1234|2345|3456/.test(uniq)?30:0;
+ if(key==='large')return /12345|23456/.test(uniq)?40:0;
+ if(key==='yacht')return c.some(n=>n===5)?50:0;
+}
+function beginTurn(){
+ state.rolls=0;state.values=[1,1,1,1,1];state.held=[false,false,false,false,false];state.selected=null;
+ $('rollNum').textContent='00 / 03';$('rollText').textContent='01 / 03';$('statusText').textContent='ROLL THE DICE TO BEGIN';$('phase').textContent='READY';
+ dice.reset();
+ renderPlayers();renderScores();
+}
+function roll(){
+ if(state.rolls>=3){showToast('NO ROLLS LEFT');return}
+ state.rolls++;
+ state.values=state.values.map((v,i)=>state.held[i]?v:1+Math.floor(Math.random()*6));
+ $('rollNum').textContent=String(state.rolls).padStart(2,'0')+' / 03';
+ $('rollText').textContent=state.rolls<3?String(state.rolls+1).padStart(2,'0')+' / 03':'FINAL';
+ $('statusText').textContent=state.rolls<3?'HOLD DICE OR ROLL AGAIN':'CHOOSE A SCORE';
+ $('phase').textContent=state.rolls<3?'HOLD':'SCORING';
+ dice.roll(state.values,state.held);
+ renderScores();
+}
+function chooseScore(key){
+ if(state.rolls===0){showToast('ROLL FIRST');return}
+ if(state.players[state.current].scores[key]!==undefined){return}
+ state.selected=key;renderScores();
+ const ok=confirm(`${key.toUpperCase()} に ${scoreFor(key,state.values)} 点を記録しますか？`);
+ if(!ok)return;
+ state.players[state.current].scores[key]=scoreFor(key,state.values);
+ state.players[state.current].total=calcTotal(state.players[state.current].scores);
+ state.selected=null;
+ const allDone=Object.keys(state.players[state.current].scores).length===12;
+ if(allDone){
+   if(state.current<state.players.length-1){state.current++;state.round++;beginTurn();showToast('NEXT PLAYER')}
+   else {state.gameOver=true;renderPlayers();renderScores();showWinner()}
+ }else{state.current=(state.current+1)%state.players.length;if(state.current===0)state.round++;beginTurn();showToast('NEXT PLAYER')}
+}
+function resetTurn(){beginTurn();showToast('TURN RESET')}
+function newGame(){if(!confirm('新しいゲームを開始しますか？'))return;state.players.forEach(p=>{p.scores={};p.total=0});state.current=0;state.round=1;state.gameOver=false;beginTurn()}
+function showWinner(){
+ const sorted=[...state.players].sort((a,b)=>b.total-a.total),w=sorted[0];
+ $('winScore').textContent=w.total;$('winText').textContent=`${w.name} WINS`;
+ $('win').classList.add('show');
+}
+function openSettings(){
+ $('nameInputs').innerHTML=state.players.map((p,i)=>`<input data-i="${i}" value="${esc(p.name)}" placeholder="PLAYER ${i+1}">`).join('');
+ $('settingsModal').classList.add('show');
+}
+function applySettings(){
+ const vals=[...document.querySelectorAll('#nameInputs input')].map((x,i)=>x.value.trim()||`PLAYER ${i+1}`);
+ state.players.forEach((p,i)=>p.name=vals[i]||p.name);renderPlayers();$('settingsModal').classList.remove('show');save();
+}
+$('rollBtn').onclick=roll;$('resetTurn').onclick=resetTurn;$('newGame').onclick=newGame;$('saveGame').onclick=save;$('settingsBtn').onclick=openSettings;
+$('cancelSettings').onclick=()=>$('settingsModal').classList.remove('show');$('applySettings').onclick=applySettings;
+$('playAgain').onclick=()=>{$('win').classList.remove('show');newGame()};
+$('addPlayer').onclick=()=>{if(state.players.length>=6){showToast('MAX 6 PLAYERS');return}state.players.push({name:`PLAYER ${state.players.length+1}`,scores:{},total:0});renderPlayers();openSettings()};
+load();renderPlayers();renderScores();
+
+/* Three.js dice */
+class DiceScene{
+ constructor(canvas){
+  this.canvas=canvas;this.scene=new THREE.Scene();
+  this.camera=new THREE.PerspectiveCamera(34,1,.1,100);this.camera.position.set(0,3.8,10);
+  this.renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});this.renderer.setPixelRatio(Math.min(devicePixelRatio,2));this.renderer.outputColorSpace=THREE.SRGBColorSpace;
+  this.scene.add(new THREE.AmbientLight(0xffffff,1.6));
+  const key=new THREE.PointLight(0x00f5ff,16,30);key.position.set(-4,6,6);this.scene.add(key);
+  const rim=new THREE.PointLight(0x8b5cf6,18,25);rim.position.set(5,3,-3);this.scene.add(rim);
+  const floor=new THREE.Mesh(new THREE.CircleGeometry(7,64),new THREE.MeshBasicMaterial({color:0x08090d,transparent:true,opacity:.85}));
+  floor.rotation.x=-Math.PI/2;floor.position.y=-1.1;this.scene.add(floor);
+  this.dice=[];this.targets=[];this.animating=false;this.ray=new THREE.Raycaster();this.pointer=new THREE.Vector2();
+  canvas.addEventListener('pointerdown',e=>this.pick(e));
+  this.resize();addEventListener('resize',()=>this.resize());this.animate();
+ }
+ resize(){const r=this.canvas.getBoundingClientRect(),w=Math.max(1,r.width),h=Math.max(1,r.height);this.renderer.setSize(w,h,false);this.camera.aspect=w/h;this.camera.updateProjectionMatrix()}
+ makeDie(n,i){
+  const g=new THREE.Group();
+  const geo=new THREE.BoxGeometry(1.35,1.35,1.35,2,2,2);
+  const mat=new THREE.MeshStandardMaterial({color:0xf4f7fa,roughness:.27,metalness:.08,emissive:0x020609});
+  const cube=new THREE.Mesh(geo,mat);g.add(cube);
+  // face pips as small dark spheres
+  const pipMat=new THREE.MeshStandardMaterial({color:0x10131a,roughness:.4,metalness:.1});
+  const map={
+   1:[[0,0]],2:[[-.23,.23],[.23,-.23]],3:[[-.24,.24],[0,0],[.24,-.24]],4:[[-.23,-.23],[-.23,.23],[.23,-.23],[.23,.23]],
+   5:[[-.24,-.24],[-.24,.24],[0,0],[.24,-.24],[.24,.24]],6:[[-.24,-.27],[-.24,0],[-.24,.27],[.24,-.27],[.24,0],[.24,.27]]
+  };
+  const addFace=(axis,sign,num)=>{
+   for(const [u,v] of map[num]){const s=.095;const m=new THREE.Mesh(new THREE.SphereGeometry(s,10,10),pipMat);
+    if(axis==='z'){m.position.set(u,v,sign*.685)}else if(axis==='x'){m.position.set(sign*.685,u,v)}else{m.position.set(u,sign*.685,v)}
+    g.add(m)}
+  };
+  addFace('z',1,n);addFace('z',-1,7-n);addFace('x',1, [1,2,3,4,5,6][(n+1)%6]);addFace('x',-1,7-([1,2,3,4,5,6][(n+1)%6]));
+  const y=n%6+1;addFace('y',1,y);addFace('y',-1,7-y);
+  g.userData={index:i,value:n,cube};return g;
+ }
+ reset(){this.dice.forEach(d=>this.scene.remove(d));this.dice=[];for(let i=0;i<5;i++){const d=this.makeDie(1,i);d.position.copy(this.pos(i));this.scene.add(d);this.dice.push(d)}this.animating=false}
+ pos(i){const positions=[[-2.9,0,0],[-1.45,.35,.2],[0,0,.1],[1.45,.35,.2],[2.9,0,0]];return new THREE.Vector3(...positions[i])}
+ setFace(d,n){ // orient top face approximately; side faces are decorative, top is what matters visually
+  const top={1:[0,0,0],2:[-Math.PI/2,0,0],3:[0,0,Math.PI/2],4:[0,0,-Math.PI/2],5:[Math.PI/2,0,0],6:[Math.PI,0,0]}[n];
+  d.rotation.set(...top);
+ }
+ roll(values,held){
+  if(this.animating)return;this.animating=true;const start=performance.now(),dur=900;
+  this.dice.forEach((d,i)=>{if(!held[i]){d.userData.from=d.rotation.clone();d.userData.target=values[i];d.userData.spin=new THREE.Vector3(6+Math.random()*3,7+Math.random()*3,5+Math.random()*3);}});
+  const tick=now=>{
+   const t=Math.min(1,(now-start)/dur),e=1-Math.pow(1-t,3);
+   this.dice.forEach((d,i)=>{if(!held[i]){const from=d.userData.from,s=d.userData.spin;d.rotation.set(from.x+s.x*e,from.y+s.y*e,from.z+s.z*e);d.position.y=Math.sin(e*Math.PI)*1.1;d.position.x=this.pos(i).x;d.position.z=this.pos(i).z;}});
+   if(t<1)requestAnimationFrame(tick);else{this.dice.forEach((d,i)=>{d.position.copy(this.pos(i));if(!held[i])this.setFace(d,values[i]);});this.animating=false}
+  };requestAnimationFrame(tick);
+ }
+ pick(ev){
+  if(this.animating)return;const r=this.canvas.getBoundingClientRect();this.pointer.x=((ev.clientX-r.left)/r.width)*2-1;this.pointer.y=-((ev.clientY-r.top)/r.height)*2+1;
+  this.ray.setFromCamera(this.pointer,this.camera);const hits=this.ray.intersectObjects(this.dice,true);if(!hits.length)return;
+  let g=hits[0].object;while(g.parent&&!g.userData.index===undefined)g=g.parent;while(g.parent&&g.userData.index===undefined)g=g.parent;
+  const i=g.userData.index;if(i===undefined)return;if(state.rolls===0){showToast('ROLL FIRST');return}
+  state.held[i]=!state.held[i];g.position.y=state.held[i]?-0.25:0;g.scale.setScalar(state.held[i]?1.08:1);showToast(state.held[i]?'HOLD':'RELEASE');renderScores();
+ }
+ animate(){requestAnimationFrame(()=>this.animate());this.dice.forEach((d,i)=>{if(!this.animating){d.position.y+=( (state.held[i]?-0.25:0)-d.position.y)*.12;d.rotation.y+=.0015}});this.renderer.render(this.scene,this.camera)}
+}
+const dice=new DiceScene($('diceCanvas'));dice.reset();
+</script>
+</body>
+</html>
